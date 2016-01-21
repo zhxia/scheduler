@@ -12,59 +12,57 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import com.zhxia.quartz.domain.JobConst;
 
 public abstract class CommandInvokerJob extends QuartzJobBean implements
-        InterruptableJob {
+		InterruptableJob {
 
-    public static final String COMMAND = "command";
-    public static final String PARAMETERS = "parameters";
-    public static final String WAIT_FOR_PROCESS = "wait";
-    private Process process = null;
+	private Process process = null;
 
-    protected final Logger log=LoggerFactory.getLogger(getClass());
-    public void interrupt() throws UnableToInterruptJobException {
-        log.info("job is interrupting...");
-        if(null!=this.process){
-            this.process.destroy();
-        }
-    }
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Override
-    protected void executeInternal(JobExecutionContext context)
-            throws JobExecutionException {
-        JobDataMap data = context.getMergedJobDataMap();
-        String command = data.getString(JobConst.JOB_PARAM_KEY_COMMAND);
-        String parameters = data.getString(JobConst.JOB_PARAM_KEY_PARAMETERS);
-        if (null == parameters) {
-            parameters = "";
-        }
+	public void interrupt() throws UnableToInterruptJobException {
+		log.info("job is interrupting...");
+		if (null != this.process) {
+			this.process.destroy();
+		}
+	}
 
-        if (null == command || command.isEmpty()) {
-            throw new JobExecutionException(
-                    "Command executable file is not configured");
-        }
+	@Override
+	protected void executeInternal(JobExecutionContext context)
+			throws JobExecutionException {
+		JobDataMap data = context.getMergedJobDataMap();
+		String command = data.getString(JobConst.JOB_PARAM_KEY_COMMAND);
+		String parameters = data.getString(JobConst.JOB_PARAM_KEY_PARAMETERS);
+		if (null == parameters) {
+			parameters = "";
+		}
 
-        boolean wait = true;
-        if (data.containsKey(JobConst.JOB_PARAM_KEY_WAIT_FLAG)) {
-            wait = data.getBooleanValue(JobConst.JOB_PARAM_KEY_WAIT_FLAG);
-        }
+		if (null == command || command.isEmpty()) {
+			throw new JobExecutionException(
+					"Command executable file is not configured");
+		}
 
-        int exitCode=this.runCommand(command, parameters, wait);
-        context.setResult(exitCode);
-    }
+		boolean wait = true;
+		if (data.containsKey(JobConst.JOB_PARAM_KEY_WAIT_FLAG)) {
+			wait = data.getBooleanValue(JobConst.JOB_PARAM_KEY_WAIT_FLAG);
+		}
 
-    protected Integer runCommand(String command, String parameters, boolean wait)
-            throws JobExecutionException {
-        Integer result = null;
-        try {
-            Runtime rt = Runtime.getRuntime();
-            String cmd = String.format("%s %s", command, parameters);
-            process = rt.exec(cmd);
-            if (wait) {
-                result=process.waitFor();
-            }
-            return result;
-        } catch (Exception e) {
-            throw new JobExecutionException("Run command error:", e, false);
-        }
-    }
+		int exitCode = this.runCommand(command, parameters, wait);
+		context.setResult(exitCode);
+	}
+
+	protected Integer runCommand(String command, String parameters, boolean wait)
+			throws JobExecutionException {
+		Integer result = null;
+		try {
+			Runtime rt = Runtime.getRuntime();
+			String cmd = String.format("%s %s", command, parameters);
+			process = rt.exec(cmd);
+			if (wait) {
+				result = process.waitFor();
+			}
+			return result;
+		} catch (Exception e) {
+			throw new JobExecutionException("Run command error:", e, false);
+		}
+	}
 
 }

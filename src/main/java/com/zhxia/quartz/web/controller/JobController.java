@@ -60,7 +60,7 @@ public class JobController {
             job.setDescription(description);
             job.setPriority(priority);
             job.setJobCategory(jobCategory);
-            job.setParameters(parameters);
+            job.setCommand(parameters);
             job.setCronExpression(cronExpression);
             jobBiz.addJob(job);
             return "redirect:/job/list.do?userId=0";

@@ -68,7 +68,7 @@ public class JobDao extends HibernateDaoSupport {
         job.setPriority(priority);
         job.setDescription(description);
         job.setJobCategory(jobCategory);
-        job.setParameters(parameters);
+        job.setCommand(parameters);
         job.setCronExpression(cronExpression);
         this.getHibernateTemplate().update(job);
     }
