@@ -88,7 +88,7 @@
       <hr>
 
       <footer>
-        <p>anjuke.inc&copy;2013</p>
+        <p>ME&copy;2013</p>
       </footer>
 
     </div>
