@@ -2,7 +2,9 @@ package com.zhxia.quartz.plugin;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -19,8 +21,7 @@ import com.zhxia.quartz.util.JobSchedulerProcessor;
 
 public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(JobLoaderPlugin.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobLoaderPlugin.class);
 
 	private ScheduledExecutorService scheduledExecutor = null;
 
@@ -43,24 +44,33 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 	}
 
 	public void run() {
-		logger.info(String.format("checking new task at:%s",
-				new Date().toString()));
+		logger.info(String.format("checking new task at:%s", new Date().toString()));
+		scanForNewJobs();
 	}
 
-	public void initialize(String name, Scheduler scheduler,
-			ClassLoadHelper classLoadHelper) throws SchedulerException {
+	public void initialize(String name, Scheduler scheduler, ClassLoadHelper classLoadHelper)
+			throws SchedulerException {
 		this.scheduler = scheduler;
-		jobSchedulerProcessor = new JobSchedulerProcessor(scheduler,
-				classLoadHelper);
+		jobSchedulerProcessor = new JobSchedulerProcessor(scheduler, classLoadHelper);
 		logger.info("jobLoader plugin is initializing...");
 	}
 
 	public void start() {
 		logger.warn("jobLoader is run !");
+		scanForNewJobs();
+		if (scanIntval > 0) {
+			scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+			scheduledExecutor.scheduleAtFixedRate(this, 0, scanIntval, TimeUnit.MILLISECONDS);
+		}
+	}
+
+	/**
+	 * 扫描数据库中的job并自动增加
+	 */
+	private void scanForNewJobs() {
 		ApplicationContext applicationContext = null;
 		try {
-			applicationContext = (ApplicationContext) scheduler.getContext()
-					.get(applicationContextKey);
+			applicationContext = (ApplicationContext) scheduler.getContext().get(applicationContextKey);
 			jobBiz = (JobBiz) applicationContext.getBean(JobConst.JOB_BIZ_NAME);
 		} catch (SchedulerException e) {
 			logger.error("ApplicationContext is null!");
@@ -69,17 +79,11 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 		try {
 			List<JobModel> jobList = jobBiz.getJobListByUserId(0);
 			for (JobModel job : jobList) {
+				System.out.println("@@@@@@@@@@@@@@@cron:" + job.getCronExpression());
 				jobSchedulerProcessor.scheduleJob(job, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		if (scanIntval > 0) {
-			/*
-			 * scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-			 * scheduledExecutor.scheduleAtFixedRate(this, 0, scanIntval,
-			 * TimeUnit.MILLISECONDS);
-			 */
 		}
 	}
 

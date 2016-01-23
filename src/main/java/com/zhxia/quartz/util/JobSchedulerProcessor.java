@@ -22,14 +22,12 @@ import com.zhxia.quartz.domain.JobConst;
 import com.zhxia.quartz.model.JobModel;
 
 public class JobSchedulerProcessor {
-	private static final Logger logger = LoggerFactory
-			.getLogger(JobSchedulerProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobSchedulerProcessor.class);
 
 	private Scheduler scheduler = null;
 	private ClassLoadHelper classLoadHelper = null;
 
-	public JobSchedulerProcessor(Scheduler scheduler,
-			ClassLoadHelper classLoadHelper) {
+	public JobSchedulerProcessor(Scheduler scheduler, ClassLoadHelper classLoadHelper) {
 		this.scheduler = scheduler;
 		this.classLoadHelper = classLoadHelper;
 	}
@@ -43,13 +41,10 @@ public class JobSchedulerProcessor {
 				if (trigger != null) {
 					Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
 					if (oldTrigger == null) {
-						logger.info(
-								"oldTrigger is null, scheduleJob by new trigger %s",
-								trigger.getDescription());
+						logger.info("oldTrigger is null, scheduleJob by new trigger %s", trigger.getDescription());
 						scheduler.scheduleJob(trigger);
 					} else {
-						logger.info(
-								"oldTrigger is not null, rescheduleJob by new trigger %s",
+						logger.info("oldTrigger is not null, rescheduleJob by new trigger %s",
 								trigger.getDescription());
 						scheduler.rescheduleJob(oldTrigger.getKey(), trigger);
 					}
@@ -57,8 +52,7 @@ public class JobSchedulerProcessor {
 			} catch (SchedulerException e) {
 				e.printStackTrace();
 			}
-		}
-		else{
+		} else {
 			logger.info("no job found!");
 		}
 	}
@@ -71,28 +65,23 @@ public class JobSchedulerProcessor {
 	protected Trigger getTrigger(JobModel model) {
 		Trigger trigger = null;
 		String cronExpression = model.getCronExpression();
-		TriggerKey triggerKey = new TriggerKey(model.getId() + "");
+		TriggerKey triggerKey = new TriggerKey(model.getId() + "", model.getId() + "");
 
 		if (!CronExpression.isValidExpression(cronExpression)) {
-			logger.warn(String.format(
-					"job:%s,group:%s,cronexpression:\"%s\" is invalid!",
-					model.getJobName(), model.getJobGroup(), cronExpression));
+			logger.warn(String.format("job:%s,group:%s,cronexpression:\"%s\" is invalid!", model.getJobName(),
+					model.getJobGroup(), cronExpression));
 			return null;
 		}
 		CronExpression cronCronExpression;
 		try {
 			cronCronExpression = new CronExpression(cronExpression);
-			trigger = TriggerBuilder
-					.newTrigger()
-					.withIdentity(triggerKey)
-					.withSchedule(
-							CronScheduleBuilder
-									.cronSchedule(cronCronExpression)).build();
+			trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
+					.withSchedule(CronScheduleBuilder.cronSchedule(cronCronExpression))
+					.forJob(model.getId() + "", model.getId() + "").build();
 		} catch (ParseException e) {
 			logger.error("bulild cron trigger faild");
 			return null;
 		}
-
 		return trigger;
 	}
 
@@ -108,16 +97,14 @@ public class JobSchedulerProcessor {
 		JobDetail jobDetail = null;
 		Class<Job> jobClass = null;
 		try {
-			jobClass = (Class<Job>) classLoadHelper.loadClass(model
-					.getJobClass());
-			JobKey jobKey = new JobKey(model.getId() + "");
+			jobClass = (Class<Job>) classLoadHelper.loadClass(model.getJobClass());
+			JobKey jobKey = new JobKey(model.getId() + "", model.getId() + "");
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put(JobConst.JOB_PARAM_KEY_COMMAND, model.getCommand());
-			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey)
-					.usingJobData(jobDataMap).build();
+			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably()
+					.build();
 		} catch (ClassNotFoundException e) {
-			logger.error(String.format("load job class:%s faild!",
-					model.getJobClass()));
+			logger.error(String.format("load job class:%s faild!", model.getJobClass()));
 		}
 		return jobDetail;
 	}
