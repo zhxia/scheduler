@@ -19,7 +19,7 @@ public class jobTest extends QuartzJobBean {
 		log.info("jobTest is running....");
 		JobKey jobKey = context.getJobDetail().getKey();
 		log.info("jobkey:" + jobKey + " exexute at " + new Date());
-		log.info((String) context.getMergedJobDataMap().get(JobConst.JOB_PARAM_KEY_COMMAND));
+		log.info((String) context.getMergedJobDataMap().get(JobConst.JOB_COMMAND));
 		log.info("============================");
 	}
 

@@ -11,7 +11,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>4.1.7.RELEASE</spring.version>
-		<quartz.version>2.2.1</quartz.version>
+		<quartz.version>2.2.2</quartz.version>
 		<hibernate.version>3.6.10.Final</hibernate.version>
 	</properties>
 	<dependencies>

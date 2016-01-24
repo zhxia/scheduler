@@ -24,28 +24,29 @@ public abstract class CommandInvokerJob extends QuartzJobBean implements
 			this.process.destroy();
 		}
 	}
+	/**
+	 * 对Job中的参数进行整理
+	 * @param context
+	 * @return
+	 */
+	protected abstract JobDataMap analyzeJobDataMap(JobExecutionContext context);
 
 	@Override
 	protected void executeInternal(JobExecutionContext context)
 			throws JobExecutionException {
-		JobDataMap data = context.getMergedJobDataMap();
-		String command = data.getString(JobConst.JOB_PARAM_KEY_COMMAND);
-		String parameters = data.getString(JobConst.JOB_PARAM_KEY_PARAMETERS);
-		if (null == parameters) {
-			parameters = "";
-		}
-
-		if (null == command || command.isEmpty()) {
+		JobDataMap data = analyzeJobDataMap(context);
+		String strCmd = data.getString(JobConst.JOB_PARAM_KEY_COMMAND);
+		String strParameters = data
+				.getString(JobConst.JOB_PARAM_KEY_PARAMETERS);
+		if (null == strCmd || strCmd.isEmpty()) {
 			throw new JobExecutionException(
 					"Command executable file is not configured");
 		}
-
 		boolean wait = true;
 		if (data.containsKey(JobConst.JOB_PARAM_KEY_WAIT_FLAG)) {
 			wait = data.getBooleanValue(JobConst.JOB_PARAM_KEY_WAIT_FLAG);
 		}
-
-		int exitCode = this.runCommand(command, parameters, wait);
+		int exitCode = this.runCommand(strCmd, strParameters, wait);
 		context.setResult(exitCode);
 	}
 

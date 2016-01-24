@@ -17,17 +17,38 @@ import com.zhxia.quartz.domain.JobConst;
  */
 public class ScriptJob extends CommandInvokerJob {
 
-	@Override
-	protected void executeInternal(JobExecutionContext context)
+	/**
+	 * 用于解析job中的cmd参数
+	 * 
+	 * @param cmd
+	 * @return
+	 * @throws JobExecutionException
+	 */
+	private Map<String, String> analyzeCommand(String cmd)
 			throws JobExecutionException {
-		JobDataMap data = context.getMergedJobDataMap();
-		String originCommand = data.getString(JobConst.JOB_PARAM_KEY_COMMAND);
-		String[] tmpArr = originCommand.split(" ", 2);
-		Map<String, String> mapData = new HashMap<String, String>();
-		mapData.put(JobConst.JOB_PARAM_KEY_COMMAND, tmpArr[0]);
-		mapData.put(JobConst.JOB_PARAM_KEY_PARAMETERS, tmpArr[1]);
-		context.getJobDetail().getJobDataMap().putAll(mapData);
-		super.executeInternal(context);
+		Map<String, String> rt = new HashMap<String, String>();
+		String[] arrCmd = cmd.split(" ", 3);
+		if (arrCmd.length < 3) {
+			throw new JobExecutionException("Job command params not correct!");
+		}
+		String command = arrCmd[0];
+		String params = String.format("%s %s", arrCmd[1], arrCmd[2]);
+		rt.put(JobConst.JOB_PARAM_KEY_COMMAND, command);
+		rt.put(JobConst.JOB_PARAM_KEY_PARAMETERS, params);
+		return rt;
+	}
+
+	protected JobDataMap analyzeJobDataMap(JobExecutionContext context) {
+		JobDataMap jobDataMap = context.getMergedJobDataMap();
+		String jobCommand = jobDataMap.getString(JobConst.JOB_COMMAND);
+		Map<String, String> mapData;
+		try {
+			mapData = analyzeCommand(jobCommand);
+			jobDataMap.putAll(mapData);
+		} catch (JobExecutionException e) {
+			e.printStackTrace();
+		}
+		return jobDataMap;
 	}
 
 }
