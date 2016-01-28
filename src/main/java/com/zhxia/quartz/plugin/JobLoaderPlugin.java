@@ -58,10 +58,10 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 	public void start() {
 		logger.warn("jobLoader is run !");
 		scanForNewJobs();
-		if (scanIntval > 0) {
+		/*if (scanIntval > 0) {
 			scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 			scheduledExecutor.scheduleAtFixedRate(this, 0, scanIntval, TimeUnit.MILLISECONDS);
-		}
+		}*/
 	}
 
 	/**

@@ -23,20 +23,41 @@ import com.zhxia.quartz.domain.JobConst;
 import com.zhxia.quartz.model.JobModel;
 
 public class JobSchedulerProcessor {
-	private static final Logger logger = LoggerFactory
-			.getLogger(JobSchedulerProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobSchedulerProcessor.class);
 
 	private Scheduler scheduler = null;
 	private ClassLoadHelper classLoadHelper = null;
+	private static JobSchedulerProcessor jobSchedulerProcessor = null;
 
-	public JobSchedulerProcessor(Scheduler scheduler,
-			ClassLoadHelper classLoadHelper) {
+	public JobSchedulerProcessor(Scheduler scheduler, ClassLoadHelper classLoadHelper) {
 		this.scheduler = scheduler;
 		this.classLoadHelper = classLoadHelper;
+		jobSchedulerProcessor = this;
 	}
 
-	public void scheduleJob(JobModel model, boolean replace)
-			throws JobExecutionException {
+	public static JobSchedulerProcessor getJobSchedulerProcessor() {
+		return jobSchedulerProcessor;
+	}
+
+	public void pauseJob(String jobId) {
+		JobKey jobKey = new JobKey(jobId, jobId);
+		try {
+			scheduler.pauseJob(jobKey);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void resumeJob(String jobId) {
+		JobKey jobKey = new JobKey(jobId, jobId);
+		try {
+			scheduler.resumeJob(jobKey);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void scheduleJob(JobModel model, boolean replace) throws JobExecutionException {
 		JobDetail jobDetail = getJobDetail(model);
 		if (jobDetail != null) {
 			try {
@@ -45,13 +66,10 @@ public class JobSchedulerProcessor {
 				if (trigger != null) {
 					Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
 					if (oldTrigger == null) {
-						logger.info(
-								"oldTrigger is null, scheduleJob by new trigger %s",
-								trigger.getDescription());
+						logger.info("oldTrigger is null, scheduleJob by new trigger %s", trigger.getDescription());
 						scheduler.scheduleJob(trigger);
 					} else {
-						logger.info(
-								"oldTrigger is not null, rescheduleJob by new trigger %s",
+						logger.info("oldTrigger is not null, rescheduleJob by new trigger %s",
 								trigger.getDescription());
 						scheduler.rescheduleJob(oldTrigger.getKey(), trigger);
 					}
@@ -72,24 +90,18 @@ public class JobSchedulerProcessor {
 	protected Trigger getTrigger(JobModel model) {
 		Trigger trigger = null;
 		String cronExpression = model.getCronExpression();
-		TriggerKey triggerKey = new TriggerKey(model.getId() + "",
-				model.getId() + "");
+		TriggerKey triggerKey = new TriggerKey(model.getId() + "", model.getId() + "");
 
 		if (!CronExpression.isValidExpression(cronExpression)) {
-			logger.warn(String.format(
-					"job:%s,group:%s,cronexpression:\"%s\" is invalid!",
-					model.getJobName(), model.getJobGroup(), cronExpression));
+			logger.warn(String.format("job:%s,group:%s,cronexpression:\"%s\" is invalid!", model.getJobName(),
+					model.getJobGroup(), cronExpression));
 			return null;
 		}
 		CronExpression cronCronExpression;
 		try {
 			cronCronExpression = new CronExpression(cronExpression);
-			trigger = TriggerBuilder
-					.newTrigger()
-					.withIdentity(triggerKey)
-					.withSchedule(
-							CronScheduleBuilder
-									.cronSchedule(cronCronExpression))
+			trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
+					.withSchedule(CronScheduleBuilder.cronSchedule(cronCronExpression))
 					.forJob(model.getId() + "", model.getId() + "").build();
 		} catch (ParseException e) {
 			logger.error("bulild cron trigger faild");
@@ -107,27 +119,23 @@ public class JobSchedulerProcessor {
 	 */
 
 	@SuppressWarnings("unchecked")
-	protected JobDetail getJobDetail(JobModel model)
-			throws JobExecutionException {
+	protected JobDetail getJobDetail(JobModel model) throws JobExecutionException {
 		JobDetail jobDetail = null;
 		Class<Job> jobClass = null;
 		try {
-			jobClass = (Class<Job>) classLoadHelper.loadClass(model
-					.getJobClass());
+			jobClass = (Class<Job>) classLoadHelper.loadClass(model.getJobClass());
 			JobKey jobKey = new JobKey(model.getId() + "", model.getId() + "");
 			JobDataMap jobDataMap = new JobDataMap();
 			String jobCommand = model.getCommand();
 			if (null == jobCommand || jobCommand.isEmpty()) {
-				throw new JobExecutionException(String.format(
-						"job id:%s command field not set!", model.getId()));
+				throw new JobExecutionException(String.format("job id:%s command field not set!", model.getId()));
 			}
 			jobDataMap.put(JobConst.JOB_COMMAND, jobCommand);
 			jobDataMap.put(JobConst.JOB_CATE, model.getJobCategory());
-			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey)
-					.usingJobData(jobDataMap).storeDurably().build();
+			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably()
+					.build();
 		} catch (ClassNotFoundException e) {
-			logger.error(String.format("load job class:%s faild!",
-					model.getJobClass()));
+			logger.error(String.format("load job class:%s faild!", model.getJobClass()));
 		}
 		return jobDetail;
 	}

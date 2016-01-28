@@ -1,7 +1,9 @@
 package com.zhxia.quartz.domain;
 
 public class JobConst {
-
+	public static final int JOB_OP_PAUSE = 1;
+	public static final int JOB_OP_RESUME = 2;
+	
 	public static final String JOB_COMMAND = "cmd";
 	public static final String JOB_PARAM_KEY_COMMAND = "command";
 	public static final String JOB_PARAM_KEY_PARAMETERS = "params";
@@ -15,3 +17,4 @@ public class JobConst {
 	public static final int JOB_CAT_SCRIPT = 2; // script 脚本
 	public static final int JOB_CAT_SHELL = 3; // shell脚本
 }
+
