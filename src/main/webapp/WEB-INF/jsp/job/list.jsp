@@ -14,7 +14,7 @@
           <table width="100%">
             <tr><th>Job名称</th><th>Job所在组</th><th>运行状态</th><th>操作</th></tr>
             <c:forEach items="${list}" var="row">
-            <tr><td><c:out value="${row.jobName}"/></td><td align="center"><c:out value="${row.jobGroup}"/></td><td align="center"> -- </td><td align="center"><a href='edit.do?jobId=<c:out value="${row.id}" />'>编辑</a> <a href="op.do?jobId=<c:out value="${row.id}"/>&op=1">暂停</a></td></tr>
+            <tr><td><c:out value="${row.jobName}"/></td><td align="center"><c:out value="${row.jobGroup}"/></td><td align="center"> -- </td><td align="center"><a href='edit.do?jobId=<c:out value="${row.id}" />'>编辑</a> <a href="op.do?jobId=<c:out value="${row.id}"/>&op=2">暂停</a> <a href="op.do?jobId=<c:out value="${row.id}"/>&op=3">恢复</a> <a href="op.do?jobId=<c:out value="${row.id}"/>&op=4">停止</a> <a href="op.do?jobId=<c:out value="${row.id}"/>&op=1">启动</a> </td></tr>
             </c:forEach>
             </table>
           </div>

@@ -38,7 +38,11 @@ public class JobSchedulerProcessor {
 	public static JobSchedulerProcessor getJobSchedulerProcessor() {
 		return jobSchedulerProcessor;
 	}
-
+	
+	/**
+	 * 暂停Job
+	 * @param jobId
+	 */
 	public void pauseJob(String jobId) {
 		JobKey jobKey = new JobKey(jobId, jobId);
 		try {
@@ -47,7 +51,11 @@ public class JobSchedulerProcessor {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * 恢复暂定的Job
+	 * @param jobId
+	 */
 	public void resumeJob(String jobId) {
 		JobKey jobKey = new JobKey(jobId, jobId);
 		try {

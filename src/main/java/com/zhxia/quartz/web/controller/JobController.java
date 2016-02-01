@@ -26,6 +26,7 @@ public class JobController {
 	@Resource(name = "jobBiz")
 	private JobBiz jobBiz;
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public ModelAndView listJob(HttpServletRequest request) {
 		int userId = Integer.parseInt(request.getSession().getAttribute("userId").toString());
@@ -94,8 +95,14 @@ public class JobController {
 	public String jobOperation(@RequestParam("jobId") String jobId, @RequestParam("op") int op) {
 		JobSchedulerProcessor jobSchedulerProcessor = JobSchedulerProcessor.getJobSchedulerProcessor();
 		switch (op) {
+		case JobConst.JOB_OP_START:
+
+			break;
 		case JobConst.JOB_OP_PAUSE:
 			jobSchedulerProcessor.pauseJob(jobId);
+			break;
+		case JobConst.JOB_OP_RESUME:
+			jobSchedulerProcessor.resumeJob(jobId);
 			break;
 		}
 		return "redirect:/job/list";
