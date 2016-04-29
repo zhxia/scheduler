@@ -112,7 +112,7 @@ public class JobSchedulerProcessor {
 			cronCronExpression = new CronExpression(cronExpression);
 			trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
 					.withSchedule(CronScheduleBuilder.cronSchedule(cronCronExpression))
-					.forJob(model.getId() + "", model.getId() + "").build();
+					.forJob(model.getId() + "", model.getId() + "").withDescription(model.getDescription()).build();
 		} catch (ParseException e) {
 			logger.error("bulild cron trigger faild");
 			return null;
@@ -142,7 +142,7 @@ public class JobSchedulerProcessor {
 			}
 			jobDataMap.put(JobConst.JOB_COMMAND, jobCommand);
 			jobDataMap.put(JobConst.JOB_CATE, model.getJobCategory());
-			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably()
+			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably().withDescription(model.getDescription())
 					.build();
 		} catch (ClassNotFoundException e) {
 			logger.error(String.format("load job class:%s faild!", model.getJobClass()));
