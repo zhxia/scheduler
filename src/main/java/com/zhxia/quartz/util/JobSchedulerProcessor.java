@@ -53,13 +53,15 @@ public class JobSchedulerProcessor {
 	}
 	
 	/**
-	 * 恢复暂定的Job
+	 * 恢复暂停的Job
 	 * @param jobId
 	 */
 	public void resumeJob(String jobId) {
 		JobKey jobKey = new JobKey(jobId, jobId);
 		try {
-			scheduler.resumeJob(jobKey);
+			if(scheduler.checkExists(jobKey)){
+				scheduler.resumeJob(jobKey);
+			}
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
@@ -91,7 +93,7 @@ public class JobSchedulerProcessor {
 	}
 
 	/**
-	 * 
+	 * 创建job Trigger
 	 * @param model
 	 * @return
 	 */

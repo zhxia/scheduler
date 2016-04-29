@@ -96,13 +96,10 @@ public class JobController {
 		JobSchedulerProcessor jobSchedulerProcessor = JobSchedulerProcessor.getJobSchedulerProcessor();
 		switch (op) {
 		case JobConst.JOB_OP_START:
-
-			break;
-		case JobConst.JOB_OP_PAUSE:
-			jobSchedulerProcessor.pauseJob(jobId);
-			break;
-		case JobConst.JOB_OP_RESUME:
 			jobSchedulerProcessor.resumeJob(jobId);
+			break;
+		case JobConst.JOB_OP_STOP:
+			jobSchedulerProcessor.pauseJob(jobId);
 			break;
 		}
 		return "redirect:/job/list";

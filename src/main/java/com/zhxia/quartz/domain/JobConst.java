@@ -3,9 +3,7 @@ package com.zhxia.quartz.domain;
 public class JobConst {
 	// job操作
 	public static final int JOB_OP_START = 1;
-	public static final int JOB_OP_PAUSE = 2;
-	public static final int JOB_OP_RESUME = 3;
-	public static final int JOB_OP_STOP = 4;
+	public static final int JOB_OP_STOP = 2;
 
 	// job状态
 	public static final int JOB_STATUS_INIT = 0;
