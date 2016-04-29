@@ -16,7 +16,7 @@ public class JobDao extends HibernateDaoSupport {
     public List<JobModel> getAllJobList(int userId,int status){
         List<JobModel> list=null;
         DetachedCriteria where=DetachedCriteria.forClass(JobModel.class);
-        Criterion criteria=Restrictions.ne("status", 0);
+        Criterion criteria=Restrictions.ne("jobStatus", 0);
         if(userId>0){
             Restrictions.and(criteria, Restrictions.eq("userId", userId));
         }
@@ -63,12 +63,12 @@ public class JobDao extends HibernateDaoSupport {
         int priority=Integer.parseInt(data.get("priority"));
         String description=data.get("description");
         int jobCategory=Integer.parseInt(data.get("jobCategory"));
-        String parameters=data.get("parameters");
+        String command=data.get("command");
         String cronExpression=data.get("cronExpression");
         job.setPriority(priority);
         job.setDescription(description);
         job.setJobCategory(jobCategory);
-        job.setCommand(parameters);
+        job.setCommand(command);
         job.setCronExpression(cronExpression);
         this.getHibernateTemplate().update(job);
     }

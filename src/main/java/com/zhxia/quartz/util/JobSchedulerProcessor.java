@@ -74,11 +74,11 @@ public class JobSchedulerProcessor {
 				if (trigger != null) {
 					Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
 					if (oldTrigger == null) {
-						logger.info("oldTrigger is null, scheduleJob by new trigger %s", trigger.getDescription());
+						logger.info(String.format("oldTrigger is null, scheduleJob by new trigger %s", trigger.getDescription()));
 						scheduler.scheduleJob(trigger);
 					} else {
-						logger.info("oldTrigger is not null, rescheduleJob by new trigger %s",
-								trigger.getDescription());
+						logger.info(String.format("oldTrigger is not null, rescheduleJob by new trigger %s",
+								trigger.getDescription()));
 						scheduler.rescheduleJob(oldTrigger.getKey(), trigger);
 					}
 				}

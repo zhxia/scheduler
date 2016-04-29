@@ -7,26 +7,30 @@ import com.zhxia.quartz.dao.JobDao;
 import com.zhxia.quartz.model.JobModel;
 
 public class JobBiz {
-    private JobDao jobDao;
+	private JobDao jobDao;
 
-    public void setJobDao(JobDao jobDao) {
-        this.jobDao = jobDao;
-    }
+	public void setJobDao(JobDao jobDao) {
+		this.jobDao = jobDao;
+	}
 
-    public List<JobModel> getJobListByUserId(int userId){
-        return jobDao.getJobList(userId);
-    }
+	public List<JobModel> getJobList(int status) {
+		return jobDao.getAllJobList(0, status);
+	}
 
-    public JobModel getJobDetail(int jobId){
-        return jobDao.getJobDetail(jobId);
-    }
+	public List<JobModel> getJobListByUserId(int userId) {
+		return jobDao.getJobList(userId);
+	}
 
-    public int addJob(JobModel job){
-        return jobDao.addJob(job);
-    }
+	public JobModel getJobDetail(int jobId) {
+		return jobDao.getJobDetail(jobId);
+	}
 
-    public void editJob(Map<String,String> data,int jobId){
-        jobDao.editJob(data,jobId);
-    }
+	public int addJob(JobModel job) {
+		return jobDao.addJob(job);
+	}
+
+	public void editJob(Map<String, String> data, int jobId) {
+		jobDao.editJob(data, jobId);
+	}
 
 }

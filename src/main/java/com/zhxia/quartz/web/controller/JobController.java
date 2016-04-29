@@ -48,7 +48,7 @@ public class JobController {
 			String description = request.getParameter("description").trim();
 			int priority = Integer.parseInt(request.getParameter("priority"));
 			int jobCategory = Integer.parseInt(request.getParameter("jobCategory"));
-			String parameters = request.getParameter("parameters").trim();
+			String command = request.getParameter("command").trim();
 			String cronExpression = request.getParameter("cronExpression").trim();
 			int userId = 0;
 			job.setUserId(userId);
@@ -58,7 +58,7 @@ public class JobController {
 			job.setDescription(description);
 			job.setPriority(priority);
 			job.setJobCategory(jobCategory);
-			job.setCommand(parameters);
+			job.setCommand(command);
 			job.setCronExpression(cronExpression);
 			jobBiz.addJob(job);
 			return "redirect:/job/list.do?userId=0";
@@ -78,13 +78,13 @@ public class JobController {
 			String jobCategory = request.getParameter("jobCategory");
 			String description = request.getParameter("description").trim();
 			String cronExpression = request.getParameter("cronExpression").trim();
-			String parameters = request.getParameter("parameters").trim();
+			String command = request.getParameter("command").trim();
 			Map<String, String> data = new HashMap<String, String>();
 			data.put("priority", priority);
 			data.put("jobCategory", jobCategory);
 			data.put("description", description);
 			data.put("cronExpression", cronExpression);
-			data.put("parameters", parameters);
+			data.put("command", command);
 			jobBiz.editJob(data, jobId);
 			return "redirect:/job/list";
 		}

@@ -21,8 +21,6 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency> <groupId>org.quartz-scheduler</groupId> <artifactId>quartz</artifactId> 
-			<version>2.1.7</version> </dependency> -->
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
@@ -141,12 +139,4 @@
 			</resource>
 		</resources>
 	</build>
-	<!-- <repositories>
-		<repository>
-			<id>haozu</id>
-			<name>haozu repositories</name>
-			<url>http://nexus.dev.haozu.com:10010/nexus</url>
-			<layout>default</layout>
-		</repository>
-	</repositories> -->
 </project>

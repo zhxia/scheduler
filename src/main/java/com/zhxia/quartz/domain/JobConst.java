@@ -10,8 +10,7 @@ public class JobConst {
 	// job状态
 	public static final int JOB_STATUS_INIT = 0;
 	public static final int JOB_STATUS_RUN = 1;
-	public static final int JOB_STATUS_PAUSE = 2;
-	public static final int JOB_STATUS_STOP = 3;
+	public static final int JOB_STATUS_STOP = 2;
 
 	public static final String JOB_COMMAND = "cmd"; // job command
 	public static final String JOB_PARAM_KEY_COMMAND = "command";
