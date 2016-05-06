@@ -24,15 +24,14 @@
 				<tr>
 					<td><c:out value="${row.jobName}" /></td>
 					<td align="center"><c:out value="${row.jobGroup}" /></td>
-					<td align="center">
-						<c:if test="${row.jobStatus==0}">待运行</c:if>
-						<c:if test="${row.jobStatus==1}">运行中</c:if>
-						<c:if test="${row.jobStatus==2}">已停止</c:if>
-					</td>
+					<td align="center"><c:if test="${row.jobStatus==0}">待运行</c:if>
+						<c:if test="${row.jobStatus==1}">运行中</c:if> <c:if
+							test="${row.jobStatus==2}">已停止</c:if></td>
 					<td align="center"><a
 						href='edit.do?jobId=<c:out value="${row.id}" />'>编辑</a> <a
-						href="op.do?jobId=<c:out value="${row.id}"/>&op=4">停止</a> <a
-						href="op.do?jobId=<c:out value="${row.id}"/>&op=1">启动</a></td>
+						href="op.do?jobId=<c:out value="${row.id}"/>&op=1">启动</a> <a
+						href="op.do?jobId=<c:out value="${row.id}"/>&op=2">停止</a> <a
+						href="op.do?jobId=<c:out value="${row.id}"/>&op=3">重启</a></td>
 				</tr>
 			</c:forEach>
 		</table>

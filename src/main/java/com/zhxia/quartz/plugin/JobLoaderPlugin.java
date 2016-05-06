@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.spi.ClassLoadHelper;
@@ -18,79 +19,116 @@ import com.zhxia.quartz.domain.JobBiz;
 import com.zhxia.quartz.domain.JobConst;
 import com.zhxia.quartz.model.JobModel;
 import com.zhxia.quartz.util.JobSchedulerProcessor;
+import com.zhxia.quartz.util.Task;
+import com.zhxia.quartz.util.TaskQueue;
 
 public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobLoaderPlugin.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobLoaderPlugin.class);
 
-    private ScheduledExecutorService scheduledExecutor = null;
+	private ScheduledExecutorService scheduledExecutor = null;
 
-    private int scanIntval = 5000; // 用于自动扫描新增的任务，间隔时间单位位毫秒
+	private int scanIntval = 5000; // 用于自动扫描新增的任务，间隔时间单位位毫秒
 
-    private Scheduler scheduler = null;
+	private Scheduler scheduler = null;
 
-    private JobSchedulerProcessor jobSchedulerProcessor = null;
+	private static JobSchedulerProcessor jobSchedulerProcessor;
 
-    private String applicationContextKey = JobConst.APPLICATION_CONTEXT_KEY;
+	private String applicationContextKey = JobConst.APPLICATION_CONTEXT_KEY;
 
-    private JobBiz jobBiz = null;
+	private JobBiz jobBiz = null;
 
-    public void setScanIntval(int scanIntval) {
-        this.scanIntval = scanIntval;
-    }
+	private static TaskQueue taskQueue;
 
-    public void setApplicationContextKey(String applicationContextKey) {
-        this.applicationContextKey = applicationContextKey;
-    }
+	public static TaskQueue getTaskQueue() {
+		return taskQueue;
+	}
 
-    public void run() {
-        logger.info(String.format("checking new task at:%s", new Date().toString()));
-        scanForNewJobs();
-    }
+	public void setScanIntval(int scanIntval) {
+		this.scanIntval = scanIntval;
+	}
 
-    public void initialize(String name, Scheduler scheduler, ClassLoadHelper classLoadHelper)
-            throws SchedulerException {
-        this.scheduler = scheduler;
-        jobSchedulerProcessor = new JobSchedulerProcessor(scheduler, classLoadHelper);
-        logger.info("jobLoader plugin is initializing...");
-    }
+	public void setApplicationContextKey(String applicationContextKey) {
+		this.applicationContextKey = applicationContextKey;
+	}
 
-    public void start() {
-        logger.warn("jobLoader is run !");
-        scanForNewJobs();
-        if (scanIntval > 0) {
-            scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+	/**
+	 * 定时扫描任务队列，并处理任务
+	 */
+	public void run() {
+		logger.info(String.format("checking new task at:%s", new Date().toString()));
+		if (taskQueue.isEmpty()) {
+			logger.info("task queue is empty!");
+			return;
+		}
+		Task task = null;
+		while (null != (task = taskQueue.deQueue())) {
+			JobModel jobModel = task.getJobModel();
+			int jobOperation = task.getOperation();
+			int jobId = jobModel.getId();
+			System.out.println("JobId:" + jobId + ",Job Operation:" + jobOperation);
+			if (jobOperation == JobConst.JOB_OP_START) {
+				jobSchedulerProcessor.startJob(jobModel, true);
+			} else if (jobOperation == JobConst.JOB_OP_STOP) {
+				jobSchedulerProcessor.pauseJob(jobId);
+			} else if (jobOperation == JobConst.JOB_OP_RELOAD) {
+				jobSchedulerProcessor.pauseJob(jobId);
+				try {
+					Thread.currentThread();
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				jobSchedulerProcessor.resumeJob(jobId);
+			}
+		}
+	}
+
+	public void initialize(String name, Scheduler scheduler, ClassLoadHelper classLoadHelper)
+			throws SchedulerException {
+		this.scheduler = scheduler;
+		jobSchedulerProcessor = new JobSchedulerProcessor(scheduler, classLoadHelper);
+		taskQueue = new TaskQueue();
+		logger.info("jobLoader plugin is initializing...");
+	}
+
+	public void start() {
+		logger.info("jobLoader is running...");
+		initializeJobs();
+		if (scanIntval > 0) {
+			scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 			scheduledExecutor.scheduleAtFixedRate(this, 0, scanIntval, TimeUnit.MILLISECONDS);
 		}
-    }
+	}
 
-    /**
-     * 扫描数据库中的job并自动增加
-     */
-    private void scanForNewJobs() {
-        ApplicationContext applicationContext = null;
-        try {
-            applicationContext = (ApplicationContext) scheduler.getContext().get(applicationContextKey);
-            jobBiz = (JobBiz) applicationContext.getBean(JobConst.JOB_BIZ_NAME);
-        } catch (SchedulerException e) {
-            logger.error("ApplicationContext is null!");
-            return;
-        }
-        try {
-            List<JobModel> jobList = jobBiz.getJobList(JobConst.JOB_STATUS_RUN);
-            for (JobModel job : jobList) {
-                System.out.println("@@@@@@@@@@@@@@@cron:" + job.getCronExpression());
-                jobSchedulerProcessor.scheduleJob(job, true);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	/**
+	 * 扫描数据库中的job并自动增加到待处理的任务队列
+	 */
+	private void initializeJobs() {
+		ApplicationContext applicationContext = null;
+		try {
+			applicationContext = (ApplicationContext) scheduler.getContext().get(applicationContextKey);
+			jobBiz = (JobBiz) applicationContext.getBean(JobConst.JOB_BIZ_NAME);
+		} catch (SchedulerException e) {
+			logger.error("ApplicationContext is null!");
+			return;
+		}
+		try {
+			List<JobModel> jobList = jobBiz.getJobList(JobConst.JOB_STATUS_INIT);
+			for (JobModel jobModel : jobList) {
+				System.out.println("@@@@@@@@@@@@@@@cron:" + jobModel.getCronExpression());
+				Task task = new Task(jobModel, JobConst.JOB_OP_START);
+				taskQueue.enQueue(task);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    public void shutdown() {
-        logger.info("jobLoader is shutdown !");
-        if (scheduledExecutor != null) {
-            scheduledExecutor.shutdown();
-        }
-    }
+	public void shutdown() {
+		logger.info("jobLoader is shutdown !");
+		if (scheduledExecutor != null) {
+			scheduledExecutor.shutdown();
+		}
+	}
 }

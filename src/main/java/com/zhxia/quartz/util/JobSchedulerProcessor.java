@@ -27,39 +27,35 @@ public class JobSchedulerProcessor {
 
 	private Scheduler scheduler = null;
 	private ClassLoadHelper classLoadHelper = null;
-	private static JobSchedulerProcessor jobSchedulerProcessor = null;
 
 	public JobSchedulerProcessor(Scheduler scheduler, ClassLoadHelper classLoadHelper) {
 		this.scheduler = scheduler;
 		this.classLoadHelper = classLoadHelper;
-		jobSchedulerProcessor = this;
 	}
 
-	public static JobSchedulerProcessor getJobSchedulerProcessor() {
-		return jobSchedulerProcessor;
-	}
-	
 	/**
 	 * 暂停Job
+	 * 
 	 * @param jobId
 	 */
-	public void pauseJob(String jobId) {
-		JobKey jobKey = new JobKey(jobId, jobId);
+	public void pauseJob(int jobId) {
+		JobKey jobKey = new JobKey(jobId + "", jobId + "");
 		try {
 			scheduler.pauseJob(jobKey);
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 恢复暂停的Job
+	 * 
 	 * @param jobId
 	 */
-	public void resumeJob(String jobId) {
-		JobKey jobKey = new JobKey(jobId, jobId);
+	public void resumeJob(int jobId) {
+		JobKey jobKey = new JobKey(jobId + "", jobId + "");
 		try {
-			if(scheduler.checkExists(jobKey)){
+			if (scheduler.checkExists(jobKey)) {
 				scheduler.resumeJob(jobKey);
 			}
 		} catch (SchedulerException e) {
@@ -67,8 +63,13 @@ public class JobSchedulerProcessor {
 		}
 	}
 
-	public void scheduleJob(JobModel model, boolean replace) throws JobExecutionException {
-		JobDetail jobDetail = getJobDetail(model);
+	public void startJob(JobModel model, boolean replace) {
+		JobDetail jobDetail = null;
+		try {
+			jobDetail = getJobDetail(model);
+		} catch (JobExecutionException e1) {
+			e1.printStackTrace();
+		}
 		if (jobDetail != null) {
 			try {
 				scheduler.addJob(jobDetail, replace);
@@ -76,7 +77,8 @@ public class JobSchedulerProcessor {
 				if (trigger != null) {
 					Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
 					if (oldTrigger == null) {
-						logger.info(String.format("oldTrigger is null, scheduleJob by new trigger %s", trigger.getDescription()));
+						logger.info(String.format("oldTrigger is null, scheduleJob by new trigger %s",
+								trigger.getDescription()));
 						scheduler.scheduleJob(trigger);
 					} else {
 						logger.info(String.format("oldTrigger is not null, rescheduleJob by new trigger %s",
@@ -88,12 +90,13 @@ public class JobSchedulerProcessor {
 				e.printStackTrace();
 			}
 		} else {
-			logger.info("no job found!");
+			logger.warn("no job found!");
 		}
 	}
 
 	/**
 	 * 创建job Trigger
+	 * 
 	 * @param model
 	 * @return
 	 */
@@ -142,8 +145,8 @@ public class JobSchedulerProcessor {
 			}
 			jobDataMap.put(JobConst.JOB_COMMAND, jobCommand);
 			jobDataMap.put(JobConst.JOB_CATE, model.getJobCategory());
-			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably().withDescription(model.getDescription())
-					.build();
+			jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobKey).usingJobData(jobDataMap).storeDurably()
+					.withDescription(model.getDescription()).build();
 		} catch (ClassNotFoundException e) {
 			logger.error(String.format("load job class:%s faild!", model.getJobClass()));
 		}

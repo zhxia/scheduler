@@ -1,5 +1,6 @@
 package com.zhxia.quartz.web.controller;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.zhxia.quartz.domain.JobBiz;
-import com.zhxia.quartz.domain.JobConst;
 import com.zhxia.quartz.model.JobModel;
-import com.zhxia.quartz.util.JobSchedulerProcessor;
+import com.zhxia.quartz.plugin.JobLoaderPlugin;
+import com.zhxia.quartz.util.Task;
+import com.zhxia.quartz.util.TaskQueue;
 
 @Controller
 @RequestMapping(value = "/job")
@@ -42,7 +44,6 @@ public class JobController {
 	@RequestMapping(value = "/add", method = { RequestMethod.GET, RequestMethod.POST })
 	public String addJob(HttpServletRequest request) {
 		if (request.getMethod() == RequestMethod.POST.name()) {
-			JobModel job = new JobModel();
 			String jobName = request.getParameter("jobName").trim();
 			String jobGroup = request.getParameter("jobGroup").trim();
 			String description = request.getParameter("description").trim();
@@ -50,17 +51,15 @@ public class JobController {
 			int jobCategory = Integer.parseInt(request.getParameter("jobCategory"));
 			String command = request.getParameter("command").trim();
 			String cronExpression = request.getParameter("cronExpression").trim();
-			int userId = 0;
-			job.setUserId(userId);
-			job.setJobName(jobName);
-			job.setJobGroup(jobGroup);
-			job.setJobClass("jobClass");
-			job.setDescription(description);
-			job.setPriority(priority);
-			job.setJobCategory(jobCategory);
-			job.setCommand(command);
-			job.setCronExpression(cronExpression);
-			jobBiz.addJob(job);
+			Map<String, Serializable> data = new HashMap<>();
+			data.put("jobName", jobName);
+			data.put("jobGroup", jobGroup);
+			data.put("description", description);
+			data.put("priority", priority);
+			data.put("jobCategory", jobCategory);
+			data.put("command", command);
+			data.put("cronExpression", cronExpression);
+			jobBiz.addJob(data);
 			return "redirect:/job/list.do?userId=0";
 		}
 		return "/job/add";
@@ -79,7 +78,7 @@ public class JobController {
 			String description = request.getParameter("description").trim();
 			String cronExpression = request.getParameter("cronExpression").trim();
 			String command = request.getParameter("command").trim();
-			Map<String, String> data = new HashMap<String, String>();
+			Map<String, Serializable> data = new HashMap<String, Serializable>();
 			data.put("priority", priority);
 			data.put("jobCategory", jobCategory);
 			data.put("description", description);
@@ -92,16 +91,11 @@ public class JobController {
 	}
 
 	@RequestMapping(value = "/op", method = { RequestMethod.GET })
-	public String jobOperation(@RequestParam("jobId") String jobId, @RequestParam("op") int op) {
-		JobSchedulerProcessor jobSchedulerProcessor = JobSchedulerProcessor.getJobSchedulerProcessor();
-		switch (op) {
-		case JobConst.JOB_OP_START:
-			jobSchedulerProcessor.resumeJob(jobId);
-			break;
-		case JobConst.JOB_OP_STOP:
-			jobSchedulerProcessor.pauseJob(jobId);
-			break;
-		}
+	public String jobOperation(@RequestParam("jobId") int jobId, @RequestParam("op") int op) {
+		TaskQueue taskQueue = JobLoaderPlugin.getTaskQueue();
+		JobModel jobModel = jobBiz.getJobDetail(jobId);
+		Task task = new Task(jobModel, op);
+		taskQueue.enQueue(task);
 		return "redirect:/job/list";
 	}
 

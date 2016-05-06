@@ -15,9 +15,9 @@
      <tr><td align="right">描述：</td><td><textarea name="description"></textarea></td></tr>
     <tr><td align="right">脚本类型：</td><td>
     <select name="jobCategory">
-    <option value="1">PHP</option>
-    <option value="2">SHELL</option>
-    <option value="3">JAVA</option>
+    <option value="1">JAVA</option>
+    <option value="2">PHP</option>
+    <option value="3">SHELL</option>
     </select>
     </td></tr>
     <tr><td align="right">执行命令：</td><td><input name="command" type="text"/></td></tr>
