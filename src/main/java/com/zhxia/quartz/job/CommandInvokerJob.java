@@ -64,15 +64,14 @@ public abstract class CommandInvokerJob extends QuartzJobBean implements Interru
 			Runtime rt = Runtime.getRuntime();
 			String cmd = String.format("%s %s", command, parameters);
 			proc = rt.exec(cmd);
-			// Consumes the stdout from the process
-			StreamConsumer stdoutConsumer = new StreamConsumer(proc.getInputStream(), "stdout");
-
-			// Consumes the stderr from the process
 			if (consumeStreams) {
-				StreamConsumer stderrConsumer = new StreamConsumer(proc.getErrorStream(), "stderr");
+				// Consumes the stdout from the process
+				StreamConsumer stdoutConsumer = new StreamConsumer(proc.getInputStream(), "stdout");
 				stdoutConsumer.start();
-				stderrConsumer.start();
 			}
+			// Consumes the stderr from the process
+			StreamConsumer stderrConsumer = new StreamConsumer(proc.getErrorStream(), "stderr");
+			stderrConsumer.start();
 			if (wait) {
 				result = proc.waitFor();
 			}

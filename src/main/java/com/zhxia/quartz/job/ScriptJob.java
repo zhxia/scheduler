@@ -38,7 +38,6 @@ public class ScriptJob extends CommandInvokerJob {
 		}
 		rt.put(JobConst.JOB_PARAM_KEY_COMMAND, command);
 		rt.put(JobConst.JOB_PARAM_KEY_PARAMETERS, params);
-		rt.put(JobConst.JOB_PARAM_KEY_CONSUME_STREAM, "1");
 		return rt;
 	}
 

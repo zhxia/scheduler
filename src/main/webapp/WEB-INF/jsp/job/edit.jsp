@@ -24,7 +24,7 @@
     <option value="2" <c:if test="${job.jobCategory == '2'}"> <c:out value="selected="></c:out> </c:if> >PHP</option>
     <option value="3" <c:if test="${job.jobCategory == '3'}"> <c:out value="selected="></c:out> </c:if> >SHELL</option>
     </select></td></tr>
-     <tr><td align="right">执行命令:</td><td><input name="command" type="text" value="<c:out value="${job.command}"/>"/></td></tr>
+     <tr><td align="right">执行命令:</td><td><input class="input-block-level" name="command" type="text" value="<c:out value="${job.command}"/>"/></td></tr>
     <tr><td align="right">时间表达式:</td><td><input name="cronExpression" type="text" value="<c:out value="${job.cronExpression}"/>" /></td></tr>
     <tr><td>&nbsp;</td><td><input class="btn btn-primary" type="submit" value="保存"/> &nbsp;&nbsp; <input class="btn" type="button" onclick="javascript:history.back(-1);" value="返回"/></td></tr>
     </table>

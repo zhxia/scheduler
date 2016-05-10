@@ -20,7 +20,7 @@
     <option value="3">SHELL</option>
     </select>
     </td></tr>
-    <tr><td align="right">执行命令：</td><td><input name="command" type="text"/></td></tr>
+    <tr><td align="right">执行命令：</td><td><input class="input-block-level" name="command" type="text"/></td></tr>
     <tr><td align="right">时间表达式：</td><td><input name="cronExpression" type="text"/></td></tr>
     <tr><td align="right">优先级：</td><td>
     <select name="priority">
