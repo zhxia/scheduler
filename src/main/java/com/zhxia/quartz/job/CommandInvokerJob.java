@@ -49,7 +49,7 @@ public abstract class CommandInvokerJob extends QuartzJobBean implements Interru
 		if (data.containsKey(JobConst.JOB_PARAM_KEY_WAIT_FLAG)) {
 			wait = data.getBooleanValue(JobConst.JOB_PARAM_KEY_WAIT_FLAG);
 		}
-		boolean consumeStreams = false;
+		boolean consumeStreams = true;
 		if (data.containsKey(JobConst.JOB_PARAM_KEY_CONSUME_STREAM)) {
 			consumeStreams = data.getBooleanValue(JobConst.JOB_PARAM_KEY_CONSUME_STREAM);
 		}
