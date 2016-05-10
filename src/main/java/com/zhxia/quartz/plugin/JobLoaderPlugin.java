@@ -1,12 +1,10 @@
 package com.zhxia.quartz.plugin;
 
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.spi.ClassLoadHelper;
@@ -18,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import com.zhxia.quartz.domain.JobBiz;
 import com.zhxia.quartz.domain.JobConst;
 import com.zhxia.quartz.model.JobModel;
+import com.zhxia.quartz.util.Common;
 import com.zhxia.quartz.util.JobSchedulerProcessor;
 import com.zhxia.quartz.util.Task;
 import com.zhxia.quartz.util.TaskQueue;
@@ -38,7 +37,7 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 
 	private JobBiz jobBiz = null;
 
-	private static TaskQueue taskQueue;
+	private static TaskQueue taskQueue = null;
 
 	public static TaskQueue getTaskQueue() {
 		return taskQueue;
@@ -56,7 +55,7 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 	 * 定时扫描任务队列，并处理任务
 	 */
 	public void run() {
-		logger.info(String.format("checking new task at:%s", new Date().toString()));
+		logger.info("begin to exeute job task");
 		if (taskQueue.isEmpty()) {
 			logger.info("task queue is empty!");
 			return;
@@ -66,21 +65,22 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 			JobModel jobModel = task.getJobModel();
 			int jobOperation = task.getOperation();
 			int jobId = jobModel.getId();
-			System.out.println("JobId:" + jobId + ",Job Operation:" + jobOperation);
+			logger.info("JobId:" + jobId + ",Job Operation:" + jobOperation);
 			if (jobOperation == JobConst.JOB_OP_START) {
 				jobSchedulerProcessor.startJob(jobModel, true);
 			} else if (jobOperation == JobConst.JOB_OP_STOP) {
 				jobSchedulerProcessor.pauseJob(jobId);
 			} else if (jobOperation == JobConst.JOB_OP_RELOAD) {
-				jobSchedulerProcessor.pauseJob(jobId);
-				try {
-					Thread.currentThread();
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				jobSchedulerProcessor.resumeJob(jobId);
+				jobSchedulerProcessor.startJob(jobModel, true);
 			}
+			String operationName = Common.getJobOperationName(jobOperation);
+			logger.info(String.format("job operation:[%s],job detail:%s", operationName, jobModel.toString()));
+			/*
+			 * Map<String, Serializable> data = new HashMap<>(); int jobStatus =
+			 * Common.getJobStatus(jobOperation); data.put("jobStatus",
+			 * jobStatus); try { jobBiz.editJob(data, jobId); } catch (Exception
+			 * e) { e.printStackTrace(); }
+			 */
 		}
 	}
 
@@ -116,7 +116,7 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 		try {
 			List<JobModel> jobList = jobBiz.getJobList(JobConst.JOB_STATUS_INIT);
 			for (JobModel jobModel : jobList) {
-				System.out.println("@@@@@@@@@@@@@@@cron:" + jobModel.getCronExpression());
+				logger.info("initialize job from database...");
 				Task task = new Task(jobModel, JobConst.JOB_OP_START);
 				taskQueue.enQueue(task);
 			}

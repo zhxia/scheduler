@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.zhxia.quartz.domain.JobBiz;
 import com.zhxia.quartz.model.JobModel;
 import com.zhxia.quartz.plugin.JobLoaderPlugin;
+import com.zhxia.quartz.util.Common;
 import com.zhxia.quartz.util.Task;
 import com.zhxia.quartz.util.TaskQueue;
 
@@ -92,11 +93,17 @@ public class JobController {
 
 	@RequestMapping(value = "/op", method = { RequestMethod.GET })
 	public String jobOperation(@RequestParam("jobId") int jobId, @RequestParam("op") int op) {
-		TaskQueue taskQueue = JobLoaderPlugin.getTaskQueue();
 		JobModel jobModel = jobBiz.getJobDetail(jobId);
-		Task task = new Task(jobModel, op);
-		taskQueue.enQueue(task);
-		return "redirect:/job/list";
+		if (null != jobModel) {
+			TaskQueue taskQueue = JobLoaderPlugin.getTaskQueue();
+			Task task = new Task(jobModel, op);
+			taskQueue.enQueue(task);
+			int jobStatus = Common.getJobStatus(op);
+			Map<String, Serializable> data = new HashMap<>();
+			data.put("jobStatus", jobStatus);
+			jobBiz.editJob(data, jobId);
+		}
+		return "redirect:/job/list?t=" + Math.random();
 	}
 
 }

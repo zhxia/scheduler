@@ -9,8 +9,8 @@
 </head>
 <body>
 <form action="" method="post">
-    <table width="800" cellpadding="5">
-    <tr><td align="right" width="100">job名称:</td><td><input name="jobName" type="text" readonly="true" value="<c:out value="${job.jobName}"/>" /></td></tr>
+    <table class="table table-striped table-bordered" width="800" cellpadding="5">
+    <tr><td align="right" width="100">job名称:</td><td><input name="jobName" type="text" readonly="readonly" value="<c:out value="${job.jobName}"/>" /></td></tr>
     <tr><td align="right">所在组:</td><td><input name="jobGroup" type="text" readonly="true" value="<c:out value="${job.jobGroup}"/>" /></td></tr>
     <tr><td align="right">优先级:</td><td>
     <select name="priority">

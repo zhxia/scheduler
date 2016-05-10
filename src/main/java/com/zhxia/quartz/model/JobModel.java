@@ -152,4 +152,13 @@ public class JobModel {
 		this.command = command;
 	}
 
+	@Override
+	public String toString() {
+		return "JobModel [Id=" + Id + ", userId=" + userId + ", jobName=" + jobName + ", jobGroup=" + jobGroup
+				+ ", description=" + description + ", priority=" + priority + ", jobClass=" + jobClass
+				+ ", jobCategory=" + jobCategory + ", cronExpression=" + cronExpression + ", command=" + command
+				+ ", jobStatus=" + jobStatus + ", created=" + created + ", lastUpdate=" + lastUpdate + "]";
+	}
+	
+	
 }

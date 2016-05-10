@@ -1,6 +1,8 @@
 package com.zhxia.quartz.job;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.quartz.JobDataMap;
@@ -24,13 +26,18 @@ public class ScriptJob extends CommandInvokerJob {
 	 * @return
 	 * @throws JobExecutionException
 	 */
-	private Map<String, String> analyzeCommand(String cmd)
-			throws JobExecutionException {
+	private Map<String, String> analyzeCommand(String cmd) throws JobExecutionException {
 		Map<String, String> rt = new HashMap<String, String>();
 		String[] arrCmd = cmd.split(" ", 3);
-		if (arrCmd.length < 3) {
+		List<String> listCmd = Arrays.asList(arrCmd);
+		if (listCmd.size() < 2) {
 			throw new JobExecutionException("Job command params not correct!");
 		}
+		if (listCmd.size() == 2) {
+			listCmd.add("");
+			arrCmd = listCmd.toArray(new String[] {});
+		}
+
 		String command = arrCmd[0];
 		String params = String.format("%s %s", arrCmd[1], arrCmd[2]);
 		rt.put(JobConst.JOB_PARAM_KEY_COMMAND, command);

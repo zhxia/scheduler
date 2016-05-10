@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.zhxia.quartz.dao.JobDao;
 import com.zhxia.quartz.model.JobModel;
+import com.zhxia.quartz.util.Common;
 
 public class JobBiz {
 	private JobDao jobDao;
@@ -43,7 +44,7 @@ public class JobBiz {
 		jobModel.setJobCategory(jobCategory);
 		jobModel.setCommand(command);
 		jobModel.setCronExpression(cronExpression);
-		String jobClass = getJobClass(jobCategory);
+		String jobClass = Common.getJobClass(jobCategory);
 		jobModel.setJobClass(jobClass);
 		return jobDao.addJob(jobModel);
 	}
@@ -74,23 +75,11 @@ public class JobBiz {
 			String command = (String) data.get("command");
 			jobModel.setCommand(command);
 		}
-		jobDao.editJob(jobModel);
-	}
-
-	private String getJobClass(int jobType) {
-		String jobClass;
-		switch (jobType) {
-		case JobConst.JOB_CAT_SCRIPT:
-			jobClass = "com.zhxia.quartz.job.ScriptJob";
-			break;
-		case JobConst.JOB_CAT_SHELL:
-			jobClass = "com.zhxia.quartz.job.ShellJob";
-			break;
-		default:
-			jobClass = "com.zhxia.quartz.job.JavaJob";
-			break;
+		if(data.containsKey("jobStatus")){
+			int jobStatus=(Integer)data.get("jobStatus");
+			jobModel.setJobStatus(jobStatus);
 		}
-		return jobClass;
+		jobDao.editJob(jobModel);
 	}
 
 }

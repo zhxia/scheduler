@@ -21,4 +21,10 @@ public class TaskQueue {
 	public boolean isEmpty() {
 		return queue.isEmpty();
 	}
+
+	@Override
+	public String toString() {
+		return "TaskQueue [queue=" + queue.toString() + "]";
+	}
+	
 }

@@ -10,9 +10,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" href="<c:url value='/css/bootstrap.css'/>">
-<link rel="stylesheet"
-	href="<c:url value='/css/bootstrap-responsive.css'/>">
-<script type="text/javascript" src="<c:url value='/js/jquery.js'/>"></script>
+<link rel="stylesheet" href="<c:url value='/css/bootstrap-responsive.css'/>">
+<link rel="stylesheet" href="<c:url value='/css/default.css'/>">
 <style type="text/css">
 body {
 	padding-top: 60px;
@@ -69,19 +68,19 @@ body {
 						<li class="nav-header">所有Job</li>
 						<li class="active"><a href="<%=urlList.get("urlJobList")%>">Job列表</a></li>
 						<li><a href="<%=urlList.get("urlJobAdd")%>">新增Job</a></li>
+						<li><a href="#">用户管理</a></li>
+						<li><a href="#">系统设置</a></li>
+						<!-- <li class="nav-header">Sidebar</li>
+						<li><a href="#">Link</a></li>
+						<li><a href="#">Link</a></li>
+						<li><a href="#">Link</a></li>
+						<li><a href="#">Link</a></li>
 						<li><a href="#">Link</a></li>
 						<li><a href="#">Link</a></li>
 						<li class="nav-header">Sidebar</li>
 						<li><a href="#">Link</a></li>
 						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
-						<li class="nav-header">Sidebar</li>
-						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
-						<li><a href="#">Link</a></li>
+						<li><a href="#">Link</a></li> -->
 					</ul>
 				</div>
 				<!--/.well -->
@@ -101,5 +100,6 @@ body {
 		</footer>
 
 	</div>
+	<script type="text/javascript" src="<c:url value='/js/jquery.js'/>"></script>
 </body>
 </html>
