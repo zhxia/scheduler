@@ -75,12 +75,6 @@ public class JobLoaderPlugin implements SchedulerPlugin, Runnable {
 			}
 			String operationName = Common.getJobOperationName(jobOperation);
 			logger.info(String.format("job operation:[%s],job detail:%s", operationName, jobModel.toString()));
-			/*
-			 * Map<String, Serializable> data = new HashMap<>(); int jobStatus =
-			 * Common.getJobStatus(jobOperation); data.put("jobStatus",
-			 * jobStatus); try { jobBiz.editJob(data, jobId); } catch (Exception
-			 * e) { e.printStackTrace(); }
-			 */
 		}
 	}
 

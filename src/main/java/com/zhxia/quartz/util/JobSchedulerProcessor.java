@@ -115,7 +115,7 @@ public class JobSchedulerProcessor {
 			cronCronExpression = new CronExpression(cronExpression);
 			trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
 					.withSchedule(CronScheduleBuilder.cronSchedule(cronCronExpression))
-					.forJob(model.getId() + "", model.getId() + "").withDescription(model.getDescription()).build();
+					.forJob(model.getId() + "", model.getId() + "").withDescription(model.getDescription()).withPriority(model.getPriority()).build();
 		} catch (ParseException e) {
 			logger.error("bulild cron trigger faild");
 			return null;

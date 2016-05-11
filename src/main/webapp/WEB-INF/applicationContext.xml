@@ -28,6 +28,13 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="waitForJobsToCompleteOnShutdown" value="true" />
 		<property name="exposeSchedulerInRepository" value="true" />
 		<property name="jobFactory" ref="jobFactoryBean" />
+		<property name="globalTriggerListeners">
+			<list>
+				<ref local="jobTriggerListener" />
+			</list>
+		</property>
+	</bean>
+	<bean id="jobTriggerListener" class="com.zhxia.quartz.listener.JobTriggerListener">
 	</bean>
 	<!-- 配置datdaSource -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -63,6 +70,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		</property>
 		<property name="packagesToScan" value="com.zhxia.quartz.model" />
 	</bean>
+
 	<!-- 配置HibernateTemplate，用于完成数据操作 -->
 	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
 		<property name="sessionFactory" ref="sessionFactory"></property>
