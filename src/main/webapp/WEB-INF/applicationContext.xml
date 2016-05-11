@@ -28,16 +28,16 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<property name="waitForJobsToCompleteOnShutdown" value="true" />
 		<property name="exposeSchedulerInRepository" value="true" />
 		<property name="jobFactory" ref="jobFactoryBean" />
-		<property name="schedulerListeners">
-			<list>
-				<ref local="jobTriggerListener" />
-			</list>
-		</property>
-		<!-- <property name="globalTriggerListeners">
+		<!-- <property name="schedulerListeners">
 			<list>
 				<ref local="jobTriggerListener" />
 			</list>
 		</property> -->
+		<property name="globalTriggerListeners">
+			<list>
+				<ref local="jobTriggerListener" />
+			</list>
+		</property>
 	</bean>
 	<bean id="jobTriggerListener" class="com.zhxia.quartz.listener.JobTriggerListener">
 	</bean>

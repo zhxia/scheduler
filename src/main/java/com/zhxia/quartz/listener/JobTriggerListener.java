@@ -20,7 +20,7 @@ public class JobTriggerListener extends TriggerListenerSupport {
 	@Override
 	public void triggerFired(Trigger trigger, JobExecutionContext context) {
 		long fireTime = System.currentTimeMillis();
-		logger.info(String.format("job fire at:%s", new Date(fireTime)));
+		logger.info(String.format("job:%s fire at:%s",trigger.getKey().getName() , new Date(fireTime)));
 	}
 
 	@Override
